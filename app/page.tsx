@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Confetti from "react-confetti";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -23,6 +23,18 @@ type SpeechRecognitionErrorEvent = {
   error: string;
 }
 
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+}
+
 export default function Home() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowWidth, setWindowWidth] = useState(0);
@@ -34,7 +46,7 @@ export default function Home() {
   const [recognitionError, setRecognitionError] = useState("");
   const [recognitionSupported, setRecognitionSupported] = useState(true);
   const [magicPhrase, setMagicPhrase] = useState("");
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   // Thay đổi tên người được chúc mừng ở đây
   const birthdayPerson = "Nhi";
@@ -43,12 +55,12 @@ export default function Home() {
   const correctPhrase = `Chúc mừng sinh nhật ${birthdayPerson}`;
   
   // Rotating messages cho phần subtitle
-  const birthdayMessages = [
+  const birthdayMessages = useMemo(() => [
     "Chúc bạn một ngày đầy niềm vui!",
     "Hạnh phúc, thành công và sức khỏe!",
     "Tuổi mới, thành công mới!",
     "Mọi điều ước của bạn đều thành hiện thực!",
-  ];
+  ], []);
 
   const [currentMessage, setCurrentMessage] = useState(birthdayMessages[0]);
 
@@ -157,10 +169,7 @@ export default function Home() {
             Có món quà dành cho {birthdayPerson}!
           </h1>
           <p className="text-gray-600 mb-2">
-            Nói câu ma thuật sau để mở thiệp:
-          </p>
-          <p className="text-pink-600 font-bold text-xl md:text-2xl mb-6">
-            &ldquo;{correctPhrase}&rdquo;
+            Nói câu mở khóa ma thuật để mở thiệp:
           </p>
         </div>
         

@@ -17,7 +17,7 @@ const FloatingElement = ({
   delay = 0 
 }: FloatingElementProps) => {
   const startPosition = Math.random() * 100;
-  const [props, api] = useSpring(() => ({
+  const [props] = useSpring(() => ({
     from: {
       transform: `translate(${startPosition}vw, 100vh) rotate(0deg)`,
       opacity: 1,

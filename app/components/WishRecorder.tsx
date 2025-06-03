@@ -7,11 +7,37 @@ interface WishRecorderProps {
   onWishRecorded: (wish: string) => void;
 }
 
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+}
+
+interface SpeechRecognitionEvent {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+}
+
 const WishRecorder = ({ onWishRecorded }: WishRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedWish, setRecordedWish] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [recognition, setRecognition] = useState<SpeechRecognitionInstance | null>(null);
   const [error, setError] = useState("");
   const [supported, setSupported] = useState(true);
 
@@ -27,14 +53,14 @@ const WishRecorder = ({ onWishRecorded }: WishRecorderProps) => {
         recognitionInstance.interimResults = false;
         recognitionInstance.maxAlternatives = 1;
         
-        recognitionInstance.onresult = (event: any) => {
+        recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
           const transcript = event.results[0][0].transcript;
           setRecordedWish(transcript);
           setIsListening(false);
           setIsRecording(false);
         };
         
-        recognitionInstance.onerror = (event: any) => {
+        recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
           setError(`Lỗi: ${event.error}`);
           setIsListening(false);
           setIsRecording(false);
